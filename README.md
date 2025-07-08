@@ -8,9 +8,9 @@ This project implements a pure MCP (Model Context Protocol) server with HTTP bri
 
 ```mermaid
 graph TB
-    subgraph "Internet"
+    subgraph "External"
         User[👤 User]
-        Internet[🌐 Internet]
+        Browser[🌐 Web Browser]
     end
     
     subgraph "AWS Account"
@@ -35,7 +35,8 @@ graph TB
         end
     end
     
-    User --> ALB
+    User --> Browser
+    Browser --> ALB
     ALB --> Frontend
     ALB --> MCPServer
     MCPServer --> DynamoDB
@@ -46,11 +47,11 @@ graph TB
     classDef aws fill:#ff9900,stroke:#333,stroke-width:2px,color:#fff
     classDef private fill:#e1f5fe,stroke:#01579b,stroke-width:2px
     classDef public fill:#f3e5f5,stroke:#4a148c,stroke-width:2px
-    classDef user fill:#c8e6c9,stroke:#1b5e20,stroke-width:2px
+    classDef external fill:#c8e6c9,stroke:#1b5e20,stroke-width:2px
     
     class ALB,NAT,DynamoDB,Bedrock,CloudWatch aws
     class MCPServer,Frontend private
-    class User,Internet user
+    class User,Browser external
 ```
 
 ## 🔧 MCP Protocol Flow

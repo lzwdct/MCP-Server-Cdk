@@ -1,0 +1,52 @@
+version: '3.8'
+
+services:
+  mcp-server:
+    build: 
+      context: ./mcp-server
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000"
+    environment:
+      - DYNAMODB_TABLE_NAME=mcp-items-local
+      - AWS_DEFAULT_REGION=us-east-1
+      - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
+      - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
+      - AWS_SESSION_TOKEN=${AWS_SESSION_TOKEN}
+    volumes:
+      - ~/.aws:/root/.aws:ro
+    networks:
+      - mcp-network
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=development
+      - NEXT_PUBLIC_MCP_SERVER_URL=http://mcp-server:8000
+    depends_on:
+      - mcp-server
+    networks:
+      - mcp-network
+
+  # LocalStack for local DynamoDB testing (optional)
+  localstack:
+    image: localstack/localstack:latest
+    ports:
+      - "4566:4566"
+    environment:
+      - SERVICES=dynamodb
+      - DEBUG=1
+      - DATA_DIR=/tmp/localstack/data
+    volumes:
+      - "/tmp/localstack:/tmp/localstack"
+      - "/var/run/docker.sock:/var/run/docker.sock"
+    networks:
+      - mcp-network
+
+networks:
+  mcp-network:
+    driver: bridge
